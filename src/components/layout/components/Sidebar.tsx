@@ -71,7 +71,7 @@ export const Sidebar: React.FC = () => {
             <IconButton
               onClick={() => setOpen(!open)}
               variant="text"
-              className="bg-white hover:bg-white rounded-tl-3xl rounded-bl-3xl mr-[-1rem]"
+              className="bg-white hover:bg-white rounded-tl-2xl rounded-bl-2xl mr-[-1rem]"
             >
               <Bars3CenterLeftIcon strokeWidth={2} className="h-7 w-7" />
             </IconButton>

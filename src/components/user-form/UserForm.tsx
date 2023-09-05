@@ -2,7 +2,7 @@ import { Card, CardBody } from "@material-tailwind/react";
 import React from "react";
 
 type Props = {
-  edit: boolean;
+  edit?: boolean;
 };
 
 const UserForm: React.FC<Props> = ({ edit }) => {

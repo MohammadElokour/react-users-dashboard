@@ -12,7 +12,7 @@ const App = () => {
             <UsersTable />
           </Route>
           <Route path="/add">
-            <UserForm edit={false} />
+            <UserForm />
           </Route>
           <Route path="/edit">
             <UserForm edit={true} />
