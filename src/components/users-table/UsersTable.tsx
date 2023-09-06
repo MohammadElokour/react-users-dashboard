@@ -8,59 +8,18 @@ import {
   Avatar,
   IconButton,
   Tooltip,
+  Dialog,
+  CardFooter,
 } from "@material-tailwind/react";
 import { colors } from "@material-tailwind/react/types/generic";
 import { Link } from "react-router-dom";
+import { db } from "@dashboard/utils/firebase";
+import { useEffect, useState } from "react";
+import { User } from "@dashboard/utils/types";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { defaultImgSrc } from "@dashboard/utils/constants";
 
 const TABLE_HEAD = ["Member", "Team Role", "Start Date", "End Date", "Actions"];
-
-const TABLE_ROWS = [
-  {
-    img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-3.jpg",
-    title: "Mr.",
-    name: "John Michael",
-    email: "john@creative-tim.com",
-    role: "Owner",
-    startDate: "23/04/18",
-    endDate: "23/04/18",
-  },
-  {
-    img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-2.jpg",
-    title: "Ms.",
-    name: "Alexa Liras",
-    email: "alexa@creative-tim.com",
-    role: "Admin",
-    startDate: "23/04/18",
-    endDate: "23/04/18",
-  },
-  {
-    img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-1.jpg",
-    title: "Mrs.",
-    name: "Laurent Perrier",
-    email: "laurent@creative-tim.com",
-    role: "Read Only",
-    startDate: "19/09/17",
-    endDate: "19/09/17",
-  },
-  {
-    img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-4.jpg",
-    title: "Mr.",
-    name: "Michael Levi",
-    email: "michael@creative-tim.com",
-    role: "Admin",
-    startDate: "24/12/08",
-    endDate: "24/12/08",
-  },
-  {
-    img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-5.jpg",
-    title: "Mr.",
-    name: "Richard Gran",
-    email: "richard@creative-tim.com",
-    role: "Read Only",
-    startDate: "04/10/21",
-    endDate: "04/10/21",
-  },
-];
 
 const currentRoleTagColor: { [key: string]: colors } = {
   Owner: "blue",
@@ -69,15 +28,62 @@ const currentRoleTagColor: { [key: string]: colors } = {
 };
 
 const UsersTable = () => {
+  const [data, setData] = useState<User[]>([]);
+  const [userId, setUserId] = useState<string | undefined>();
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const handleOpenDeleteDialog = (id?: string) => {
+    setUserId(id);
+    setOpenDeleteDialog((current) => !current);
+  };
+
+  const handleDeleteUser = async (id?: string) => {
+    try {
+      if (id) {
+        await deleteDoc(doc(db, "users", id));
+        setData(data.filter((user) => user.id !== id));
+        setOpenDeleteDialog(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const usersList: User[] = [];
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        querySnapshot.forEach((doc) => {
+          usersList.push({
+            id: doc.id,
+            img: "",
+            title: "",
+            name: "",
+            email: "",
+            role: "",
+            startDate: "",
+            endDate: "",
+            ...doc.data(),
+          });
+        });
+        setData(usersList);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <Card className="w-full h-[94%] pt-2 px-2 lg:px-7 rounded-3xl">
+    <Card className="w-full hsm:h-[88%] h-[91%] hlg:h-[93%] pt-2 px-2 lg:px-7 rounded-3xl">
       <div className="rounded-none pt-3 px-3 m-0 mb-4">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <Typography variant="h3" color="blue-gray">
               Members list
             </Typography>
-            <Typography color="gray" className="mt-1 font-normal lg:block">
+            <Typography color="gray" className="mt-1">
               See information about all members
             </Typography>
           </div>
@@ -112,85 +118,119 @@ const UsersTable = () => {
             </tr>
           </thead>
           <tbody className="z-0">
-            {TABLE_ROWS.map(
-              ({ img, name, email, role, startDate, endDate }) => {
-                const classes = "p-4 border-b border-blue-gray-50";
-                return (
-                  <tr key={name}>
-                    <td className={classes}>
-                      <div className="flex items-center gap-3">
-                        <Avatar src={img} alt={name} size="sm" />
-                        <div className="flex flex-col">
-                          <Typography
-                            variant="small"
-                            color="blue-gray"
-                            className="font-normal"
-                          >
-                            {name}
-                          </Typography>
-                          <Typography
-                            variant="small"
-                            color="blue-gray"
-                            className="font-normal opacity-70"
-                          >
-                            {email}
-                          </Typography>
-                        </div>
-                      </div>
-                    </td>
-                    <td className={classes}>
-                      <div className="w-max">
-                        <Chip
-                          variant="ghost"
-                          size="sm"
-                          value={role}
-                          color={currentRoleTagColor[role]}
-                        />
-                      </div>
-                    </td>
-                    <td className={classes}>
-                      <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-normal"
-                      >
-                        {startDate}
-                      </Typography>
-                    </td>
-                    <td className={classes}>
-                      <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-normal"
-                      >
-                        {endDate}
-                      </Typography>
-                    </td>
-                    <td className={classes}>
-                      <Tooltip content="Edit User">
-                        <Link to="edit">
-                          <IconButton variant="text">
-                            <PencilIcon className="h-4 w-4" />
-                          </IconButton>
-                        </Link>
-                      </Tooltip>
-                      <Tooltip content="Delete User">
-                        <IconButton
-                          variant="text"
-                          color="red"
-                          className="hover:bg-[#e65100] hover:text-white"
+            {data.map(({ id, img, name, email, role, startDate, endDate }) => {
+              const classes = "p-4 border-b border-blue-gray-50";
+              return (
+                <tr key={name}>
+                  <td className={classes}>
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        src={img ? img : defaultImgSrc}
+                        alt={name}
+                        size="sm"
+                      />
+                      <div className="flex flex-col">
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="font-normal"
                         >
-                          <TrashIcon className="h-4 w-4" />
+                          {name}
+                        </Typography>
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="font-normal opacity-70"
+                        >
+                          {email}
+                        </Typography>
+                      </div>
+                    </div>
+                  </td>
+                  <td className={classes}>
+                    <div className="w-max">
+                      <Chip
+                        variant="ghost"
+                        size="sm"
+                        value={role}
+                        color={currentRoleTagColor[role]}
+                      />
+                    </div>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {startDate}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {endDate}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Tooltip content="Edit User">
+                      <Link to={`edit/${id}`}>
+                        <IconButton variant="text">
+                          <PencilIcon className="h-4 w-4" />
                         </IconButton>
-                      </Tooltip>
-                    </td>
-                  </tr>
-                );
-              }
-            )}
+                      </Link>
+                    </Tooltip>
+                    <Tooltip content="Delete User">
+                      <IconButton
+                        onClick={() => handleOpenDeleteDialog(id)}
+                        variant="text"
+                        color="red"
+                        className="hover:bg-[#e65100] hover:text-white"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </IconButton>
+                    </Tooltip>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </CardBody>
+      <Dialog
+        size="xs"
+        open={openDeleteDialog}
+        handler={handleOpenDeleteDialog}
+        className="bg-transparent shadow-none"
+      >
+        <Card className="mx-auto w-full max-w-[24rem]">
+          <CardBody className="flex flex-col gap-4">
+            <Typography variant="h3">Confirm</Typography>
+            Are you sure you want to delete this user?
+          </CardBody>
+          <CardFooter className="pt-0 flex gap-4">
+            <Button
+              variant="gradient"
+              color="gray"
+              onClick={() => handleOpenDeleteDialog()}
+              fullWidth
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="gradient"
+              color="red"
+              onClick={() => handleDeleteUser(userId)}
+              fullWidth
+            >
+              Delete
+            </Button>
+          </CardFooter>
+        </Card>
+      </Dialog>
     </Card>
   );
 };

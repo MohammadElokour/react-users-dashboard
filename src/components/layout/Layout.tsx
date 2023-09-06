@@ -19,7 +19,7 @@ const Layout: React.FC<Props> = ({ children }) => {
           <main className="flex-1 m-[-0.5rem] h-screen overflow-auto">
             {children}
           </main>
-          <div className="w-1 lg:w-10 h-screen bg-[#1e1f24]"></div>
+          <div className="w-3 lg:w-10 h-screen bg-[#1e1f24]"></div>
         </div>
       </LayoutContext.Provider>
     </div>

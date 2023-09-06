@@ -14,7 +14,7 @@ const App = () => {
           <Route path="/add">
             <UserForm />
           </Route>
-          <Route path="/edit">
+          <Route path="/edit/:id">
             <UserForm edit={true} />
           </Route>
         </Layout>
