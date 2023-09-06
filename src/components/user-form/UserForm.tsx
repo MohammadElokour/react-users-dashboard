@@ -272,6 +272,7 @@ const UserForm: React.FC<Props> = ({ edit }) => {
                   useRange={false}
                   asSingle={true}
                   value={startDateValue}
+                  popoverDirection="down"
                   placeholder={"Start Date"}
                   displayFormat={"MM/DD/YY"}
                   onChange={handleStartDateValueChange}
@@ -280,7 +281,7 @@ const UserForm: React.FC<Props> = ({ edit }) => {
                   useRange={false}
                   asSingle={true}
                   value={endDateValue}
-                  primaryColor={"fuchsia"}
+                  popoverDirection="down"
                   placeholder={"End Date"}
                   displayFormat={"MM/DD/YY"}
                   onChange={handleEndDateValueChange}
