@@ -121,7 +121,7 @@ const UsersTable = () => {
             {data.map(({ id, img, name, email, role, startDate, endDate }) => {
               const classes = "p-4 border-b border-blue-gray-50";
               return (
-                <tr key={name}>
+                <tr key={id}>
                   <td className={classes}>
                     <div className="flex items-center gap-3">
                       <Avatar

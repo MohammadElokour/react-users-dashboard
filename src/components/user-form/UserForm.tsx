@@ -27,7 +27,6 @@ const UserForm: React.FC<Props> = ({ edit }) => {
   const { id } = useParams<{ id: string }>();
   const [userData, setUserData] = useState<User>();
   const [formData, setFormData] = useState({
-    id: "",
     img: "",
     title: "",
     name: "",
@@ -132,10 +131,11 @@ const UserForm: React.FC<Props> = ({ edit }) => {
   const handleUpdate = async (e: React.FormEvent<EventTarget>) => {
     e.preventDefault();
     try {
-      const user = doc(db, "users", formData.id);
-      await updateDoc(user, {
-        ...formData,
-      });
+      const user = userData && doc(db, "users", userData.id);
+      if (user)
+        await updateDoc(user, {
+          ...formData,
+        });
       history.push("/");
     } catch (error) {
       console.log(error);
